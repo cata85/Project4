@@ -4,7 +4,7 @@ base:
 run:
 	-rm -f base
 	gcc -o base base.c
-	./base test.txt 4
+	./base test.txt 10
 
 clean:
 	-rm -f base

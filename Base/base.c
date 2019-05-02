@@ -7,10 +7,7 @@
 #define NUM_THREADS 1
 
 //#pragma omp private(results)
-//global variables
-char **str;
-//[1708514151];
-// char * results[10000];
+
 
 //this method is found https://gist.github.com/adrian-source/4111719 .... THIS CODE IS NOT MINE
 char* lcs(char* s1, char* s2)
@@ -75,7 +72,7 @@ char* lcs(char* s1, char* s2)
   return set;
 }
 
-// this was my implementation for LCS, I coudn't get it to work so I am using someone else's in order to get to the parrellism part of the assignment and start the write up on tiem
+// this was my implementation for LCS, I coudn't get it to work so I am using someone else's in order to get to the parrellism part of the assignment and start the write up on time
 /*
 // this function is what I am going to try to feed it two string and I want it to return the largest substring, it will somehow need to run the for loops in parallel.
 char * LCSubstr (char *S, char *T) 
@@ -151,8 +148,7 @@ char **ReadFile (char *filename, int total_lines)
       {
         len--;
       }
-      lines[i][len] = '\0';
-      // printf("the current line is %s\n", lines[i]); 	
+      lines[i][len] = '\0';	
       i++;
       if (i >= total_lines)
       {
@@ -165,10 +161,10 @@ char **ReadFile (char *filename, int total_lines)
 }
 
 // this method prints the results from the results 
-void PrintResults(char *results, int total_lines)
+void PrintResults(char **results, int total_lines)
 {
   int i;
-  for (i= 0; i<total_lines; i++)
+  for (i=0; i<total_lines; i++)
   {
     printf("%d-%d: %s\n", i, i+1, results[i]); 
   }
@@ -185,7 +181,11 @@ int main (int argc, char *argv[])
   {
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
-    char *results = malloc(sizeof(int) * total_lines);
+    char** results = (char **) malloc( total_lines * sizeof( char * ) );
+    for(int i = 0; i < total_lines; i++ ) 
+    {
+      results[i] = malloc( sizeof(char)*4001 );
+    }
 
     // omp_set_num_threads(NUM_THREADS);
 
@@ -200,26 +200,14 @@ int main (int argc, char *argv[])
       {
         results[i] = malloc(sizeof(char) * 4000);
       }
-      #pragma omp parallel
+      for (int j=0;j<total_lines-1;j++)
       {
-        int j,k;
-        for (j = 0; j < 10; j++)
-        {
-          for (k = 1; k<10; k++)
-          {
-            char *A = lines[j];
-            char *B = lines[k];
-            char *answer = lcs(A,B);
-            printf("%s\n", answer);
-            #pragma omp critical
-            {	
-              printf("HERE!\n");
-              strcpy(results[j], answer); // Failing here!
-            }
-          }
-        }     
+        char *A = lines[j];
+        char *B = lines[j+1];
+        char *answer = lcs(A, B);
+        results[j] = answer;
       }
-      // PrintResults(results, total_lines);
+      PrintResults(results, total_lines);
     }
     else
     {
@@ -227,6 +215,6 @@ int main (int argc, char *argv[])
       return 1; //failed
     }
 
-    return 0; // succes
+    return 0; // success
   }
 } // end main
