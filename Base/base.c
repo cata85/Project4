@@ -133,57 +133,35 @@ char * LCSubstr (char *S, char *T)
 */
 
 // this method reads the file
-int ReadFile (char *c)
+char **ReadFile (char *filename, int total_lines)
 {
 //	printf("PRINT STATEMENT FOR DEBUGGING IN READ FILE");
   //variables for file reading
   FILE *fd;
   int i = 0;
   int len;
-  int j; 
-  int err, nlines, nchars = 0;
 
-  long maxlines = 10000;
-  char** line = (char **) malloc( maxlines * sizeof( char * ) );
-  for( i = 0; i < maxlines; i++ ) {
-    line[i] = malloc( 2001 );
+  char** lines = (char **) malloc( total_lines * sizeof( char * ) );
+  for( i = 0; i < total_lines; i++ ) {
+    lines[i] = malloc( 4001 );
   }
 
-
-// Read in the lines from the data file
-
-  fd = fopen( "/homes/dan/625/wiki_dump.txt", "r" );
-  nlines = -1;
-  do {
-    err = fscanf( fd, "%[^\n]\n", line[++nlines] );
-    if( line[nlines] != NULL ) nchars += (double) strlen( line[nlines] );
-  } while( err != EOF && nlines < maxlines);
-  fclose( fd );
-
-  printf( "Read in %d lines averaging %.0lf chars/line\n", nlines, nchars / nlines);
-
-
-  //algorithm for file reading starts here
-/*	if ((fp = fopen(c, "r")) != NULL)
+	if ((fp = fopen(c, "r")) != NULL)
   {
-    while (fgets(line, 4000, fp) != NULL) 
+    while (fgets(lines[i], 4000, fp) != NULL) 
     {
-            len = strlen(line);
-            while (len && isspace(line[len - 1]))
+      len = strlen(lines[i]);
+      while (len && isspace(line[len - 1]))
       {
         len--;
       }
-      line[len] = '\0';
-        //  printf("the current line is %s\n", line); 
-
-          // *str[i] = (char* )malloc(sizeof(char) *  4000);
-          strcpy( str[i], line); 	
-           
-            i++;
-        }
-        return 0; //success 
-    }*/
-    //return -1; //failure
+      lines[i][len] = '\0';
+      printf("the current line is %s\n", line); 	
+      i++;
+    }
+    return lines; //success 
+  }
+  return NULL;
 }
 
 // this method prints the results from the results 
@@ -196,47 +174,56 @@ void PrintResults()
   }
 }
 
-int main () 
+int main (int argc, char *argv[]) 
 {
-
-  omp_set_num_threads(NUM_THREADS);
-
-  char* c = "/homes/dan/625/wiki_dump.txt";  
-
-  int success = ReadFile(c);
-
-  if (success >= 0 ){
-    int i;
-    //initializing the results
-    for(i = 0; i<10000; i++ )
-    {
-      results[i] = malloc(sizeof(char) * 4000);
-    }
-    #pragma omp parallel
-    {
-      int j,k;
-      for (j = 0; j < 10; j++)
-      {
-        for (k = 1; k<10; k++)
-        {
-          char *A = str[j];
-          char *B = str[k];
-          char *answer = lcs(A,B); 
-          #pragma omp critical
-           {	
-            strcpy( results[j], answer); 	
-          }
-        }
-      }     
-    }
-    PrintResults();
+  if (argc < 2)
+  {
+    printf("You are missing arguments");
+    return 0;
   }
   else
   {
-    printf("File failed to load");
-    return 1; //failed
+    char *filename = argv[1];
+    int total_lines = atoi(argv[2]);
+
+    // omp_set_num_threads(NUM_THREADS);
+
+    // char* c = "/homes/dan/625/wiki_dump.txt";  
+
+    char **lines = ReadFile(filename, total_lines);
+    /*
+    if (success >= 0 ){
+      int i;
+      //initializing the results
+      for(i = 0; i<10000; i++ )
+      {
+        results[i] = malloc(sizeof(char) * 4000);
+      }
+      #pragma omp parallel
+      {
+        int j,k;
+        for (j = 0; j < 10; j++)
+        {
+          for (k = 1; k<10; k++)
+          {
+            char *A = str[j];
+            char *B = str[k];
+            char *answer = lcs(A,B); 
+            #pragma omp critical
+            {	
+              strcpy( results[j], answer); 	
+            }
+          }
+        }     
+      }
+      PrintResults();
+    }
+    else
+    {
+      printf("File failed to load");
+      return 1; //failed
+    }
+    */
+    return 0; // succes
   }
-
-  return 0; // succes
-
 } // end main
