@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <omp.h>
 #include <string.h>
 
 
@@ -140,23 +139,23 @@ char **ReadFile (char *filename, int total_lines)
   FILE *fd;
   int i = 0;
   int len;
-
+  printf("Im HERE");
   char** lines = (char **) malloc( total_lines * sizeof( char * ) );
   for( i = 0; i < total_lines; i++ ) {
-    lines[i] = malloc( 4001 );
+    lines[i] = malloc( sizeof(char)*4001 );
   }
 
-	if ((fp = fopen(c, "r")) != NULL)
+	if ((fd = fopen(filename, "r")) != NULL)
   {
-    while (fgets(lines[i], 4000, fp) != NULL) 
+    while (fgets(lines[i], 4000, fd) != NULL) 
     {
       len = strlen(lines[i]);
-      while (len && isspace(line[len - 1]))
+      while (len && isspace(lines[i][len - 1]))
       {
         len--;
       }
       lines[i][len] = '\0';
-      printf("the current line is %s\n", line); 	
+      printf("the current line is %s\n", lines[i]); 	
       i++;
     }
     return lines; //success 
