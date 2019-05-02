@@ -135,7 +135,7 @@ char **ReadFile (char *filename, int total_lines)
   int nchars = 0;
   int len, nlines, err;
   char** lines = (char **) malloc( total_lines * sizeof( char * ) );
-  for( i = 0; i < total_lines; i++ ) 
+  for( i = 0; i < total_lines + 1; i++ ) 
   {
     lines[i] = malloc( sizeof(char)*4001 );
   }
@@ -146,27 +146,27 @@ char **ReadFile (char *filename, int total_lines)
 	  if( lines[nlines] != NULL ) nchars += (double) strlen( lines[nlines] );
 	} while( err != EOF && nlines < total_lines);
 	fclose( fd );
-
-  // i = 0;
-	// if ((fd = fopen(filename, "r")) != NULL)
-  // {
-  //   while (fgets(lines[i], 4000, fd) != NULL) 
-  //   {
-  //     len = strlen(lines[i]);
-  //     while (len && isspace(lines[i][len - 1]))
-  //     {
-  //       len--;
-  //     }
-  //     lines[i][len] = '\0';	
-  //     i++;
-  //     if (i >= total_lines)
-  //     {
-  //       break;
-  //     }
-  //   }
-  //   return lines;
-  // }
-
+  /*
+  i = 0;
+	if ((fd = fopen(filename, "r")) != NULL)
+  {
+    while (fgets(lines[i], 4000, fd) != NULL) 
+    {
+      len = strlen(lines[i]);
+      while (len && isspace(lines[i][len - 1]))
+      {
+        len--;
+      }
+      lines[i][len] = '\0';	
+      i++;
+      if (i >= total_lines)
+      {
+        break;
+      }
+    }
+    return lines;
+  }
+  */
   return lines;
 }
 
