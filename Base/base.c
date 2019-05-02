@@ -139,16 +139,17 @@ char **ReadFile (char *filename, int total_lines)
   FILE *fd;
   int i = 0;
   int len;
-  printf("Im HERE");
   char** lines = (char **) malloc( total_lines * sizeof( char * ) );
-  for( i = 0; i < total_lines; i++ ) {
+  for( i = 0; i < total_lines; i++ ) 
+  {
     lines[i] = malloc( sizeof(char)*4001 );
   }
-
+  i = 0;
 	if ((fd = fopen(filename, "r")) != NULL)
   {
     while (fgets(lines[i], 4000, fd) != NULL) 
     {
+	  printf("Im HERE\n");
       len = strlen(lines[i]);
       while (len && isspace(lines[i][len - 1]))
       {
@@ -157,6 +158,10 @@ char **ReadFile (char *filename, int total_lines)
       lines[i][len] = '\0';
       printf("the current line is %s\n", lines[i]); 	
       i++;
+	  if (i >= total_lines)
+	  {
+		  break;
+	  }
     }
     return lines; //success 
   }
