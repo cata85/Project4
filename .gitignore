@@ -3,3 +3,7 @@ __pycache__/
 .vscode/
 Base/base.dSYM/
 Base/base
+Base/base.exe
+OpenMP/openmp.dSYM/
+OpenMP/openmp
+OpenMP/openmp.exe
