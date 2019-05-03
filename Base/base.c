@@ -241,6 +241,7 @@ void PrintResults(char **results, int total_lines)
 
 int main (int argc, char *argv[]) 
 {
+  int i, j;
   if (argc < 3)
   {
     printf("You are missing arguments");
@@ -251,7 +252,7 @@ int main (int argc, char *argv[])
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
     char** results = (char **) malloc( total_lines * sizeof( char * ) );
-    for(int i = 0; i < total_lines; i++ ) 
+    for(i=0; i < total_lines; i++) 
     {
       results[i] = malloc( sizeof(char)*4001 );
     }
@@ -265,11 +266,11 @@ int main (int argc, char *argv[])
     if (lines != NULL) {
       int i;
       //initializing the results
-      for(i = 0; i<total_lines; i++ )
+      for(i=0; i<total_lines; i++)
       {
         results[i] = malloc(sizeof(char) * 4000);
       }
-      for (int j=0;j<total_lines-1;j++)
+      for (j=0;j<total_lines-1;j++)
       {
         char *A = lines[j];
         char *B = lines[j+1];
