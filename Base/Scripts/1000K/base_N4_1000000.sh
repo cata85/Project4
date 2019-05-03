@@ -20,6 +20,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --ntasks=4 base /homes/dan/625/wiki_dump.txt 1000000 ; } 2> Times/base_N4_1000000.txt
+{ time srun --nodes=4 --ntasks=1 base /homes/dan/625/wiki_dump.txt 1000000 ; } 2> Times/base_N4_1000000.txt
 
 echo '========================ALL DONE==========================='
