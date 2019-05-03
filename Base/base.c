@@ -262,7 +262,7 @@ int main (int argc, char *argv[])
 
     char **lines = ReadFile(filename, total_lines);
 
-    if (lines != NULL){
+    if (lines != NULL) {
       int i;
       //initializing the results
       for(i = 0; i<total_lines; i++ )
