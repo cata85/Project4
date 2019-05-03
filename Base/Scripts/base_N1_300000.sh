@@ -2,7 +2,7 @@
 
 ##### These lines are for Slurm
 #SBATCH -t 10:00:00                #Maximum time required
-#SBATCH -o Output/base_N1_10000.%j              #Output file name
+#SBATCH -o Output/base_N1_300000.%j              #Output file name
 #SBATCH --mem-per-cpu=8G
 #SBATCH --constraint=elves
 
@@ -20,6 +20,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 10000 ; } 2> Times/base_N1_10000.txt
+{ time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 300000 ; } 2> Times/base_N1_300000.txt
 
 echo '========================ALL DONE==========================='
