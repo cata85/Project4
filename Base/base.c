@@ -217,14 +217,17 @@ int main (int argc, char *argv[])
         char *answer = lcs(A, B);
         results[j] = answer;
       }
+      free(lines);
       PrintResults(results, total_lines);
+      free(results);
     }
     else
     {
+      free(lines);
+      free(results);
       printf("File failed to load");
       return 1; //failed
     }
-
     return 0; // success
   }
 } // end main
