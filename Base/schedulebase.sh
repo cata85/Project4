@@ -25,13 +25,13 @@ echo '=====================JOB STARTING=========================='
 
 
 # Nodes 1 ********************************************************************************************
-gcc -w -g base.c -o base -lbase
+gcc -o base base.c
 #Run the code
-time srun -N1 --mem-per-cpu=200M -t1 ./base /homes/dan/625/wiki_dump.txt 10000 > Times/base_N1_10000.txt
-time srun -N1 --mem-per-cpu=200M -t1 ./base /homes/dan/625/wiki_dump.txt 100000 > Times/base_N1_100000.txt
-time srun -N1 --mem-per-cpu=200M -t1 ./base /homes/dan/625/wiki_dump.txt 300000 > Times/base_N1_300000.txt
-time srun -N1 --mem-per-cpu=200M -t1 ./base /homes/dan/625/wiki_dump.txt 500000 > Times/base_N1_500000.txt
-time srun -N1 --mem-per-cpu=200M -t1 ./base /homes/dan/625/wiki_dump.txt 1000000 > Times/base_N1_1000000.txt
+time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 10000 > Times/base_N1_10000.txt
+time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 100000 > Times/base_N1_100000.txt
+time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 300000 > Times/base_N1_300000.txt
+time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 500000 > Times/base_N1_500000.txt
+time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 1000000 > Times/base_N1_1000000.txt
 
 
 # # Nodes 2 ********************************************************************************************
