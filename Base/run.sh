@@ -38,3 +38,10 @@ sbatch Scripts/100K/base_N16_100000.sh
 sbatch Scripts/300K/base_N16_300000.sh
 sbatch Scripts/500K/base_N16_500000.sh
 sbatch Scripts/1000K/base_N16_1000000.sh
+
+# Nodes: 32
+sbatch Scripts/10K/base_N32_10000.sh
+sbatch Scripts/100K/base_N32_100000.sh
+sbatch Scripts/300K/base_N32_300000.sh
+sbatch Scripts/500K/base_N32_500000.sh
+sbatch Scripts/1000K/base_N32_1000000.sh
