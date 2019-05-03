@@ -11,12 +11,12 @@ char** stored_file;
 
 void lcs()
 {
-  
+
 }
 
 void readFile()
 {
-
+  
 }
 
 int main (int argc, char *argv[]) 
@@ -39,7 +39,7 @@ int main (int argc, char *argv[])
     int i;
     // OpenMP Parallelization
     omp_set_num_threads(number_of_threads);
-    #pragma omp parallel private(myID, startPos, endPos, i, longPointer)
+    #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
     {
       thread_num = omp_get_thread_num();
       start_point = thread_num * number_of_lines / number_of_threads;
@@ -53,7 +53,7 @@ int main (int argc, char *argv[])
       
       for (i = start_point; i < end_point; i++)
       {
-          lcs((void*) stored_file[i], (void*)stored_file[i + 1], longest_common);
+          // lcs((void*)stored_file[i], (void*)stored_file[i + 1], longest_common);
           temp_longest_common++;
       }
     }

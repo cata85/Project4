@@ -1,9 +1,9 @@
 openmp:
-	gcc -o openmp openmp.c
+	gcc -o openmp openmp.c -fopenmp
 
 run:
 	-rm -f openmp
-	gcc -o openmp openmp.c
+	gcc -fopenmp -o openmp openmp.c
 	./openmp test.txt 10
 
 clean:
