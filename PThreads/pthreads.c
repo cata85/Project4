@@ -9,6 +9,13 @@
 
 //#pragma omp private(results)
 
+typedef struct
+{
+  int start, end;
+  char **lines;
+  char **results;
+} lcs_result;
+
 
 //this method is found https://gist.github.com/adrian-source/4111719 .... THIS CODE IS NOT MINE
 char* lcs(char* s1, char* s2)
@@ -240,6 +247,18 @@ void PrintResults(char **results, int total_lines)
   }
 }
 
+void * lcs_function(lcs_result *tr)
+{
+  lcs_result *thread_results = tr;
+  for (int j=thread_results->start;j<thread_results->end;j++)
+  {
+    char *A = lcs_result->lines[j];
+    char *B = lcs_result->lines[j+1];
+    lcs_result->results[j] = lcs(A, B);
+  }
+  return NULL;
+}
+
 int main (int argc, char *argv[]) 
 {
   if (argc < 4)
@@ -252,43 +271,49 @@ int main (int argc, char *argv[])
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
     int thread_number = atoi(argv[3]);
-    char** results = (char **) malloc( total_lines * sizeof( char * ) );
-    for(int i = 0; i < total_lines; i++ ) 
+
+    pthread_t threads[thread_number];
+
+    char **lines = ReadFile(filename, total_lines);
+    if(lines == NULL)
+    {
+      free(lines);
+      printf("File failed to load");
+      return 1; //failed
+    }
+
+    int tasksPerThread=(total_lines+thread_number-2)/thread_number; // this rounds up the number of tasks per thread
+
+    char** results = (char **) malloc( (total_lines - 1) * sizeof( char * ) );
+    for(i=0; i < total_lines - 1; i++) 
     {
       results[i] = malloc( sizeof(char)*4001 );
     }
 
-    // omp_set_num_threads(NUM_THREADS);
-
-    // char* c = "/homes/dan/625/wiki_dump.txt";  
-
-    char **lines = ReadFile(filename, total_lines);
-
-    if (lines != NULL){
-      int i;
-      //initializing the results
-      for(i = 0; i<total_lines; i++ )
-      {
-        results[i] = malloc(sizeof(char) * 4000);
-      }
-      for (int j=0;j<total_lines-1;j++)
-      {
-        char *A = lines[j];
-        char *B = lines[j+1];
-        char *answer = lcs(A, B);
-        results[j] = answer;
-      }
-      free(lines);
-      PrintResults(results, total_lines);
-      free(results);
-    }
-    else
+    lcs_result* thread_results = (thread_results*) malloc( thread_number * sizeof( lcs_result ) );
+    for(int i = 0; i < total_lines - 1; i++ ) 
     {
-      free(lines);
-      free(results);
-      printf("File failed to load");
-      return 1; //failed
+      thread_results[i] = malloc( sizeof(lcs_result) );
+      thread_results[i]->results = results;
+      thread_results[i]->lines = lines;
+      thread_results[i]->start = i * tasksPerThread;
+      thread_results[i]->stop= (i+1) * tasksPerThread;
     }
+    /* the last thread must not go past the end of the array */
+    thread_results[thread_number-1]->stop = total_lines - 2;
+
+    for (i=0; i<thread_number; i++) 
+    {
+        pthread_create(&threads[i], NULL, lcs_function, &thread_results[i]);
+    }
+    for (i=0; i<thread_number; i++) {
+        pthread_join(thread[i], NULL);
+    }
+    
+    free(lines);
+    PrintResults(results, total_lines);
+    free(results);
+    
     return 0; // success
   }
 } // end main
