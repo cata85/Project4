@@ -2,8 +2,8 @@
 
 ##### These lines are for Slurm
 #SBATCH -t 10:00:00                #Maximum time required
-#SBATCH -o Output/2core/pthreads_T1_1000000.%j              #Output file name
-#SBATCH --mem-per-cpu=8G
+#SBATCH -o Output/8core/pthreads_T16_1000000.%j              #Output file name
+#SBATCH --mem-per-cpu=2G
 #SBATCH --constraint=elves
 
 ### Job commands start here
@@ -20,6 +20,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --ntasks-per-node=2 pthreads /homes/dan/625/wiki_dump.txt 1000000 1; } 2> Times/2core/pthreads_T1_1000000.txt
+{ time srun --nodes=1 --ntasks-per-node=8 pthreads /homes/dan/625/wiki_dump.txt 1000000 16; } 2> Times/8core/pthreads_T16_1000000.txt
 
 echo '========================ALL DONE==========================='
