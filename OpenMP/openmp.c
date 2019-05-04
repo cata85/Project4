@@ -4,6 +4,7 @@
 #include <string.h>
 #include <omp.h>
 
+char *filename;
 int number_of_threads;
 int number_of_lines;
 char** longest_common;
@@ -21,7 +22,7 @@ void readFile()
 
 int main (int argc, char *argv[]) 
 {
-  if (argc < 3)
+  if (argc < 4)
   {
     printf("You are missing arguments");
     return 0;
@@ -29,14 +30,17 @@ int main (int argc, char *argv[])
   else
   {
     // Collect Args
-    number_of_threads = atoi(argv[1]);
+    *filename = argv[1];
     number_of_lines = atoi(argv[2]);
+    number_of_threads = atoi(argv[3]);
+    
     // OpenMP Variables
     int start_point;
     int end_point;
     int thread_num;
     char** temp_longest_common;
     int i;
+    
     // OpenMP Parallelization
     omp_set_num_threads(number_of_threads);
     #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
