@@ -9,6 +9,7 @@ int number_of_threads;
 int number_of_lines;
 char** longest_common;
 char** stored_file;
+omp_lock_t o_lock;
 
 void lcs()
 {
@@ -35,12 +36,13 @@ int main (int argc, char *argv[])
     number_of_threads = atoi(argv[3]);
     
     // OpenMP Variables
+    omp_init_lock(&o_lock);
     int start_point;
     int end_point;
     int thread_num;
     char** temp_longest_common;
     int i;
-    
+
     // OpenMP Parallelization
     omp_set_num_threads(number_of_threads);
     #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
