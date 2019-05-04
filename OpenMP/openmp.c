@@ -13,7 +13,7 @@ omp_lock_t o_lock;
 
 void lcs()
 {
-
+  
 }
 
 void readFile(char* file_name)
@@ -30,9 +30,7 @@ void readFile(char* file_name)
 	nlines = -1;
 	do {
     err = fscanf(fd, "%[^\n]\n", stored_file[++nlines]);
-    printf(stored_file[nlines]);
-    printf("Check\n");
-  } while( err != EOF && nlines < number_of_lines);
+  } while (err != EOF && nlines < number_of_lines);
 	fclose( fd );
 }
 
@@ -40,13 +38,14 @@ int main (int argc, char *argv[])
 {
   if (argc < 4)
   {
-    printf("You are missing arguments");
+    printf("You are missing arguments\n");
     return 0;
   }
   else
   {
+    printf("you are not missing arguments\n");
     // Collect Args
-    *filename = argv[1];
+    filename = argv[1];
     number_of_lines = atoi(argv[2]);
     number_of_threads = atoi(argv[3]);
     
@@ -57,34 +56,32 @@ int main (int argc, char *argv[])
     int thread_num;
     char** temp_longest_common;
     int i;
+    
     // Read File
     readFile(filename);
-    for (i = 0; i < number_of_lines; i++)
-    {
-      // printf(stored_file[i]);
-    }
+
+    printf("File read.\n");
+        
     // OpenMP Parallelization
-    #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
     omp_set_num_threads(number_of_threads);
-    // // OpenMP Parallelization
-    // omp_set_num_threads(number_of_threads);
-    // #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
-    // {
-    //   thread_num = omp_get_thread_num();
-    //   start_point = thread_num * number_of_lines / number_of_threads;
-    //   end_point = start_point + number_of_lines / number_of_threads;
-    //   temp_longest_common = longest_common + start_point;
+    #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
+    {
+      thread_num = omp_get_thread_num();
+      start_point = thread_num * number_of_lines / number_of_threads;
+      end_point = start_point + number_of_lines / number_of_threads;
+      temp_longest_common = longest_common + start_point;
       
-    //   if (thread_num == number_of_threads - 1)
-    //   {
-    //       end_point = number_of_lines - 1;
-    //   }
+      if (thread_num == number_of_threads - 1)
+      {
+        end_point = number_of_lines - 1;
+      }
       
-    //   for (i = start_point; i < end_point; i++)
-    //   {
-    //       // lcs((void*)stored_file[i], (void*)stored_file[i + 1], longest_common);
-    //       temp_longest_common++;
-    //   }
-    // }
+      for (i = start_point; i < end_point; i++)
+      {
+        lcs(stored_file[i], stored_file[i + 1], longest_common);
+        temp_longest_common++;
+      }
+    }
+    printf("%s\n", longest_common[0]);
   }
 }
