@@ -247,9 +247,9 @@ void PrintResults(char **results, int total_lines)
   }
 }
 
-void * lcs_function(lcs_result *tr)
+void * lcs_function(void *tr)
 {
-  lcs_result *thread_results = tr;
+  lcs_result *thread_results = (lcs_result *) tr;
   int j;
   for (j=thread_results->start;j<thread_results->stop;j++)
   {
@@ -271,10 +271,11 @@ int main (int argc, char *argv[])
   else
   {
     char *filename = argv[1];
-    int total_lines = atoi(argv[2]);
-    int thread_number = atoi(argv[3]);
+    int total_lines = 10, thread_number = 1;
+    total_lines = atoi(argv[2]);
+    thread_number = atoi(argv[3]);
     int i;
-    pthread_t threads[thread_number];
+    pthread_t *threads = malloc(sizeof(pthread_t)* thread_number);
 
     char **lines = ReadFile(filename, total_lines);
     if(lines == NULL)
@@ -306,7 +307,9 @@ int main (int argc, char *argv[])
 
     for (i=0; i<thread_number; i++) 
     {
-        pthread_create(&threads[i], NULL, lcs_function, &thread_results[i]);
+        if (pthread_create(&threads[i], NULL, lcs_function, thread_results[i])) {
+            perror("pthread_create failed!\n");
+        }
     }
     for (i=0; i<thread_number; i++) {
         pthread_join(threads[i], NULL);
