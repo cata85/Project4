@@ -20,6 +20,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --ntasks-per-node=16 pthreads /homes/dan/625/wiki_dump.txt 1000000 16; } 2> Times/16core/pthreads_T16_1000000.txt
+{ time srun --nodes=1 --cpus-per-task=16 pthreads /homes/dan/625/wiki_dump.txt 1000000 16; } 2> Times/16core/pthreads_T16_1000000.txt
 
 echo '========================ALL DONE==========================='
