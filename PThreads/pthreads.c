@@ -250,7 +250,8 @@ void PrintResults(char **results, int total_lines)
 void * lcs_function(lcs_result *tr)
 {
   lcs_result *thread_results = tr;
-  for (int j=thread_results->start;j<thread_results->stop;j++)
+  int j;
+  for (j=thread_results->start;j<thread_results->stop;j++)
   {
     char *A = thread_results->lines[j];
     char *B = thread_results->lines[j+1];
@@ -272,7 +273,7 @@ int main (int argc, char *argv[])
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
     int thread_number = atoi(argv[3]);
-
+    int i;
     pthread_t threads[thread_number];
 
     char **lines = ReadFile(filename, total_lines);
@@ -286,13 +287,13 @@ int main (int argc, char *argv[])
     int tasksPerThread=(total_lines+thread_number-2)/thread_number; // this rounds up the number of tasks per thread
 
     char** results = (char **) malloc( (total_lines - 1) * sizeof( char * ) );
-    for(int i=0; i < total_lines - 1; i++) 
+    for(i=0; i < total_lines - 1; i++) 
     {
       results[i] = malloc( sizeof(char)*4001 );
     }
 
     lcs_result** thread_results = malloc( thread_number * sizeof( lcs_result* ) );
-    for(int i = 0; i < thread_number; i++ ) 
+    for(i = 0; i < thread_number; i++ ) 
     {
       thread_results[i] = (lcs_result *) malloc( sizeof(lcs_result) );
       thread_results[i]->results = results;
@@ -303,11 +304,11 @@ int main (int argc, char *argv[])
     /* the last thread must not go past the end of the array */
     thread_results[thread_number-1]->stop = total_lines - 2;
 
-    for (int i=0; i<thread_number; i++) 
+    for (i=0; i<thread_number; i++) 
     {
         pthread_create(&threads[i], NULL, lcs_function, &thread_results[i]);
     }
-    for (int i=0; i<thread_number; i++) {
+    for (i=0; i<thread_number; i++) {
         pthread_join(threads[i], NULL);
     }
 
