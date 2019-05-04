@@ -5,6 +5,8 @@
 #SBATCH -o Output/8core/pthreads_T32_1000000.%j              #Output file name
 #SBATCH --mem-per-cpu=2G
 #SBATCH --constraint=elves
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=8
 
 ### Job commands start here
 ### Display some diagnostic information
@@ -20,6 +22,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --cpus-per-task=8 pthreads /homes/dan/625/wiki_dump.txt 1000000 32; } 2> Times/8core/pthreads_T32_1000000.txt
+{ time srun pthreads /homes/dan/625/wiki_dump.txt 1000000 32; } 2> Times/8core/pthreads_T32_1000000.txt
 
 echo '========================ALL DONE==========================='

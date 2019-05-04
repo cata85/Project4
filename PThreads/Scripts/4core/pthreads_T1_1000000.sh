@@ -5,6 +5,8 @@
 #SBATCH -o Output/4core/pthreads_T1_1000000.%j              #Output file name
 #SBATCH --mem-per-cpu=4G
 #SBATCH --constraint=elves
+#SBATCH --nodes=1
+#SBATCH --cpus-per-task=4
 
 ### Job commands start here
 ### Display some diagnostic information
@@ -20,6 +22,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun --nodes=1 --cpus-per-task=4 pthreads /homes/dan/625/wiki_dump.txt 1000000 1; } 2> Times/4core/pthreads_T1_1000000.txt
+{ time srun pthreads /homes/dan/625/wiki_dump.txt 1000000 1; } 2> Times/4core/pthreads_T1_1000000.txt
 
 echo '========================ALL DONE==========================='
