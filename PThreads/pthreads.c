@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <pthreads.h>
+#include <pthread.h>
 
 
 #define NUM_THREADS 1
@@ -11,7 +11,7 @@
 
 typedef struct
 {
-  int start, end;
+  int start, stop;
   char **lines;
   char **results;
 } lcs_result;
@@ -241,7 +241,7 @@ char **ReadFile (char *filename, int total_lines)
 void PrintResults(char **results, int total_lines)
 {
   int i;
-  for (i=0; i<total_lines; i++)
+  for (i=0; i<total_lines - 1; i++)
   {
     printf("%d-%d: %s\n", i, i+1, results[i]); 
   }
@@ -250,11 +250,12 @@ void PrintResults(char **results, int total_lines)
 void * lcs_function(lcs_result *tr)
 {
   lcs_result *thread_results = tr;
-  for (int j=thread_results->start;j<thread_results->end;j++)
+  for (int j=thread_results->start;j<thread_results->stop;j++)
   {
-    char *A = lcs_result->lines[j];
-    char *B = lcs_result->lines[j+1];
-    lcs_result->results[j] = lcs(A, B);
+    char *A = thread_results->lines[j];
+    char *B = thread_results->lines[j+1];
+    char *answer = lcs(A, B);
+    thread_results->results[j] = answer;
   }
   return NULL;
 }
@@ -285,15 +286,15 @@ int main (int argc, char *argv[])
     int tasksPerThread=(total_lines+thread_number-2)/thread_number; // this rounds up the number of tasks per thread
 
     char** results = (char **) malloc( (total_lines - 1) * sizeof( char * ) );
-    for(i=0; i < total_lines - 1; i++) 
+    for(int i=0; i < total_lines - 1; i++) 
     {
       results[i] = malloc( sizeof(char)*4001 );
     }
 
-    lcs_result* thread_results = (thread_results*) malloc( thread_number * sizeof( lcs_result ) );
-    for(int i = 0; i < total_lines - 1; i++ ) 
+    lcs_result** thread_results = malloc( thread_number * sizeof( lcs_result* ) );
+    for(int i = 0; i < thread_number; i++ ) 
     {
-      thread_results[i] = malloc( sizeof(lcs_result) );
+      thread_results[i] = (lcs_result *) malloc( sizeof(lcs_result) );
       thread_results[i]->results = results;
       thread_results[i]->lines = lines;
       thread_results[i]->start = i * tasksPerThread;
@@ -302,14 +303,14 @@ int main (int argc, char *argv[])
     /* the last thread must not go past the end of the array */
     thread_results[thread_number-1]->stop = total_lines - 2;
 
-    for (i=0; i<thread_number; i++) 
+    for (int i=0; i<thread_number; i++) 
     {
         pthread_create(&threads[i], NULL, lcs_function, &thread_results[i]);
     }
-    for (i=0; i<thread_number; i++) {
-        pthread_join(thread[i], NULL);
+    for (int i=0; i<thread_number; i++) {
+        pthread_join(threads[i], NULL);
     }
-    
+
     free(lines);
     PrintResults(results, total_lines);
     free(results);
