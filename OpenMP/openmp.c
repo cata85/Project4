@@ -4,6 +4,7 @@
 #include <string.h>
 #include <omp.h>
 
+char *filename;
 int number_of_threads;
 int number_of_lines;
 char** longest_common;
@@ -44,9 +45,10 @@ int main (int argc, char *argv[])
   else
   {
     // Collect Args
-    char* file_name = argv[1];
-    number_of_threads = atoi(argv[2]);
-    number_of_lines = atoi(argv[3]);
+    *filename = argv[1];
+    number_of_lines = atoi(argv[2]);
+    number_of_threads = atoi(argv[3]);
+    
     // OpenMP Variables
     int start_point;
     int end_point;
@@ -54,11 +56,14 @@ int main (int argc, char *argv[])
     char** temp_longest_common;
     int i;
     // Read File
-    readFile(file_name);
+    readFile(filename);
     for (i = 0; i < number_of_lines; i++)
     {
       // printf(stored_file[i]);
     }
+    // OpenMP Parallelization
+    #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
+    omp_set_num_threads(number_of_threads);
     // // OpenMP Parallelization
     // omp_set_num_threads(number_of_threads);
     // #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)

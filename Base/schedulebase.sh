@@ -2,12 +2,10 @@
 
 
 ##### These lines are for Slurm
-#SBATCH -N 1                      #Number of nodes to use
-#SBATCH -p pReserved              #Workshop queue
-#SBATCH -t 15:00                   #Maximum time required
+#SBATCH -t 5:00:00                #Maximum time required
 #SBATCH -o output.%j              #Output file name
-#SBATCH --mem-per-cpu=1G
-#SBATCH --ntask=16
+#SBATCH --mem-per-cpu=8G
+#SBATCH --constraint=elves
 
 ### Job commands start here
 ### Display some diagnostic information
@@ -27,11 +25,11 @@ echo '=====================JOB STARTING=========================='
 # Nodes 1 ********************************************************************************************
 gcc -o base base.c
 #Run the code
-time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 10000 > Times/base_N1_10000.txt
-time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 100000 > Times/base_N1_100000.txt
-time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 300000 > Times/base_N1_300000.txt
-time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 500000 > Times/base_N1_500000.txt
-time srun -N1 --mem-per-cpu=200M -t1 base /homes/dan/625/wiki_dump.txt 1000000 > Times/base_N1_1000000.txt
+time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 10000 > Times/base_N1_10000.txt
+time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 100000 > Times/base_N1_100000.txt
+time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 300000 > Times/base_N1_300000.txt
+time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 500000 > Times/base_N1_500000.txt
+time srun --nodes=1 --ntasks=1 base /homes/dan/625/wiki_dump.txt 1000000 > Times/base_N1_1000000.txt
 
 
 # # Nodes 2 ********************************************************************************************

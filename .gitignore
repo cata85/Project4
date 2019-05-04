@@ -4,6 +4,9 @@ __pycache__/
 Base/base.dSYM/
 Base/base
 Base/base.exe
+Base/Times/
+Base/Output/
+Base/output*
 OpenMP/openmp.dSYM/
 OpenMP/openmp
 OpenMP/openmp.exe
