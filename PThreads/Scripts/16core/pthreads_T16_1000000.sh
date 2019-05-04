@@ -3,7 +3,7 @@
 ##### These lines are for Slurm
 #SBATCH -t 10:00:00                #Maximum time required
 #SBATCH -o Output/16core/pthreads_T16_1000000.%j              #Output file name
-#SBATCH --mem-per-cpu=16G
+#SBATCH --mem-per-cpu=1G
 #SBATCH --constraint=elves
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=16
