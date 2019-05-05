@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=2G
 #SBATCH --constraint=elves
 #SBATCH --nodes=8
-#SBATCH --tasks-per-node=8
+#SBATCH --tasks-per-node=1
 
 ### Job commands start here
 ### Display some diagnostic information

@@ -22,6 +22,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time mpirun -np 4 mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/4core/mpi_N1_1000000.txt
+{ time mpirun -np 1 mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/4core/mpi_N1_1000000.txt
 
 echo '========================ALL DONE==========================='

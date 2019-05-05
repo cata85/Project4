@@ -216,15 +216,15 @@ int main (int argc, char *argv[])
     }
     free(lines);
 
-    MPI_Reduce(local_results, results, total_lines*4001, MPI_CHAR, MPI_SUM, 0, MPI_COMM_WORLD);
+    // MPI_Reduce(local_results, results, total_lines*4001, MPI_CHAR, MPI_SUM, 0, MPI_COMM_WORLD);
 
-    if (rank == 0)
-    {
-      PrintResults(results, total_lines);
-      free(results);
-    }
+    // if (rank == 0)
+    // {
+    //   PrintResults(results, total_lines);
+    //   free(results);
+    // }
 
-    free(local_results);
+    // free(local_results);
 
     MPI_Finalize();
     return 0; // success
