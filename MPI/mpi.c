@@ -65,29 +65,6 @@ char* lcs(char* s1, char* s2)
 	return set;
 }
 
-// this method reads the file
-char **ReadFile (char *filename, int total_lines)
-{
-  FILE *fd;
-  int i = 0;
-  int nchars = 0;
-  int len, nlines, err;
-  char** lines = (char **) malloc( total_lines * sizeof( char * ) );
-  for( i = 0; i < total_lines + 1; i++ ) 
-  {
-    lines[i] = malloc( sizeof(char)*4001 );
-  }
-  fd = fopen(filename, "r");
-	nlines = -1;
-	do {
-	  err = fscanf(fd, "%[^\n]\n", lines[++nlines]);
-	  if( lines[nlines] != NULL ) nchars += (double) strlen( lines[nlines] );
-	} while( err != EOF && nlines < total_lines);
-	fclose( fd );
-  
-  return lines;
-}
-
 // this method prints the results from the results 
 void PrintResults(char **results, int total_lines)
 {
@@ -111,8 +88,8 @@ int main (int argc, char *argv[])
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
     int number_of_tasks, rank;
-    char **lines;
-    char **results;
+    char *lines;
+    char *results;
     MPI_Status status;
 
     int ierr = MPI_Init(&argc, &argv);
@@ -127,56 +104,180 @@ int main (int argc, char *argv[])
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    if (rank == 0)
+    lines = malloc(sizeof(char)*total_lines*4001);
+
+    results = malloc(sizeof(char)*total_lines*4001);
+
+    // Initialize arrays.
+    for(i = 0; i < total_lines*4001; i++)
     {
-      results = (char **) malloc( total_lines * sizeof( char * ) );
-      for(i=0; i < total_lines; i++) 
+      lines[i] = '`';
+      results[i] = '`';
+    }
+
+    // Read file.
+    FILE *file = fopen(filename, "r");
+    int line_num = 0;
+    char line[4001];
+    while(fgets(line, 4001, file) != NULL && line_num < total_lines)
+    {
+      for (i=0; i<4001; i++)
       {
-        results[i] = malloc( sizeof(char)*4001 );
+        if ((char) line[i] != NULL && (char) line[i] != '\n' && (char) line[i] != '\0')
+        {
+          lines[(line_num*4001)+i] = (char) line[i];
+        }
+        else 
+        {
+          break;
+        }
       }
-      lines = ReadFile(filename, total_lines);
+      line_num++;
     }
+    fclose(file);
 
+
+
+
+
+    // Parallelize.
+    MPI_Bcast(lines, total_lines*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
     int num_of_elements_per_process = total_lines / number_of_tasks;
-    char** sub_lines = (char **) malloc( num_of_elements_per_process * sizeof( char * ) );
-    for( i = 0; i < num_of_elements_per_process + 1; i++ ) 
+    int startPos = ((long) rank) * (num_of_elements_per_process);
+    int endPos = startPos + (num_of_elements_per_process);
+    if (rank == number_of_tasks - 1)
     {
-      sub_lines[i] = malloc( sizeof(char)*4001 );
+      endPos = total_lines;
     }
 
-    MPI_Scatter(lines, num_of_elements_per_process, MPI_CHAR, sub_lines, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
-    char **local_results = (char **) malloc( num_of_elements_per_process * sizeof( char *) );
-    for (i=0; i<num_of_elements_per_process; i++)
+    char *line1;
+    char *line2;
+    for (i=startPos; i<endPos; i++)
     {
-      local_results[i] = malloc( sizeof(char)*4001 );
-    }
-    for (j=0;j<num_of_elements_per_process-1;j++)
-    {
-      char *A = lines[j];
-      char *B = lines[j+1];
-      char *answer = lcs(A, B);
-      local_results[j] = answer;
+      line2 = malloc(sizeof(char) * 4001);
+      line1 = malloc(sizeof(char) * 4001);
+      for(j=0; j < 4001; j++)
+      {
+        if (lines[(i*4001)+j] != '`')
+        {
+          line1[j] = lines[(i*4001)+j];
+        }
+        else
+        {
+          line1[j] = '\0';
+        }
+      }
+      for(j=0; j < 4001; j++)
+      {
+        if (lines[((i+1)*4001)+j] != '`')
+        {
+          line2[j] = lines[((i+1)*4001)+j];
+        }
+        else
+        {
+          line2[j] = '\0';
+        }
+      }
     }
 
-    if (rank == 0)
+    char *local_results = malloc(sizeof(char)*num_of_elements_per_process*4001);
+    for(i= 0; i < num_of_elements_per_process*4001; i++)
     {
-      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, results, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
+      local_results[i] = '`';
     }
-    else
-    {
-      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, NULL, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
-    }
+
+
+
+
+
+
+
+    // printf("%c\n", lines[0]);
+    // for(i = 0; i < num_of_elements_per_process-1; i++)
+    // {
+    //   printf("HERE\n");
+    //   // char *line1, *line2;
+    //   char *line1 = malloc(sizeof(char) * 4001);
+    //   char *line2 = malloc(sizeof(char) * 4001);
+    //   for(j=0; j < 4001; j++)
+    //   {
+    //     if (local_lines[(i*4001)+j] != '`')
+    //     {
+    //       line1[j] = local_lines[(i*4001)+j];
+    //       // line1[j] = *(local_lines + i*sizeof(char) + j);
+    //     }
+    //     else
+    //     {
+    //       line1[j] = '\0';
+    //     }
+    //   }
+    //   for(j=0; j < 4001; j++)
+    //   {
+    //     if (local_lines[((i+1)*4001)+j] != '`')
+    //     {
+    //       line2[j] = local_lines[((i+1)*4001)+j];
+    //       // line2[j] = *(local_lines + (i+1)*sizeof(char) + j);
+    //     }
+    //     else
+    //     {
+    //       line2[j] = '\0';
+    //     }
+        // printf("%s\n%s\n", line1, line2);
+      // }
+    //   char *answer = lcs(line1, line2);
+    //   // printf("%s\n", answer);
+    //   // for (j=0; j<4001; j++)
+    //   // {
+    //   //   if (*(answer + (i+1)*sizeof(char) + j) != '\0')
+    //   //   {
+    //   //     line2[j] = *(local_lines + (i+1)*sizeof(char) + j);
+    //   //   }
+    //   //   else
+    //   //   {
+    //   //     line2[j] = '\0';
+    //   //   }
+    //   // }
+    // }
+    // printf("Rank: %d\n", rank);
+
+
+
+
+
+
+
+
+    // // for (i=0; i<num_of_elements_per_process; i++)
+    // // {
+    // //   local_results[i] = malloc( sizeof(char)*4001 );
+    // // }
+    // // for (j=0;j<num_of_elements_per_process-1;j++)
+    // // {
+    // //   char *A = lines[j];
+    // //   char *B = lines[j+1];
+    // //   char *answer = lcs(A, B);
+    // //   local_results[j] = answer;
+    // // }
+
+    // if (rank == 0)
+    // {
+    //   MPI_Gather(local_results, num_of_elements_per_process*4001, MPI_CHAR, results, num_of_elements_per_process*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
+    // }
+    // else
+    // {
+    //   MPI_Gather(local_results, num_of_elements_per_process*4001, MPI_CHAR, NULL, num_of_elements_per_process*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
+    // }
     
     MPI_Barrier(MPI_COMM_WORLD);
 
     if (rank == 0)
     {
-      PrintResults(results, total_lines);
+      // PrintResults(results, total_lines);
+      free(lines);
+      free(results);
     }
 
-    free(lines);
-    free(results);
-    free(local_results);
+    // free(local_results);
 
     MPI_Finalize();
     return 0; // success
