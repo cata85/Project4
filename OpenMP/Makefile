@@ -1,5 +1,5 @@
 openmp:
-	gcc -o openmp openmp.c -fopenmp -w
+	gcc -o openmp openmp.c -fopenmp
 
 run:
 	-rm -f openmp

@@ -2,7 +2,7 @@
 
 
 # Setup
-gcc -w -g openmp.c -o openmp -lpthread
+gcc -w -g openmp.c -o openmp -fopenmp
 
 # 1 Core
 sbatch Scripts/1core/openmp_T1_1000000.sh
