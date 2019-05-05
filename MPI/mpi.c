@@ -66,13 +66,30 @@ char* lcs(char* s1, char* s2)
 }
 
 // this method prints the results from the results 
-void PrintResults(char **results, int total_lines)
+void PrintResults(char *results, int total_lines)
 {
-  int i;
-  for (i=0; i<total_lines; i++)
+  int i, j;
+  char *answer;
+  for (i=0; i<total_lines-1; i++)
   {
-    printf("%d-%d: %s\n", i, i+1, results[i]); 
+    answer = malloc(sizeof(char) * 4001);
+    for(j=0; j < 4001; j++)
+    {
+      if (results[(i*4001)+j] != '\0')
+      {
+        answer[j] = results[(i*4001)+j];
+      }
+      else
+      {
+        answer[j] = '\0';
+        break;
+      }
+    }
+    printf("%d-%d: %s\n", i, i+1, answer); 
   }
+
+
+
 }
 
 int main (int argc, char *argv[]) 
@@ -111,8 +128,8 @@ int main (int argc, char *argv[])
     // Initialize arrays.
     for(i = 0; i < total_lines*4001; i++)
     {
-      lines[i] = '`';
-      results[i] = '`';
+      lines[i] = '\0';
+      results[i] = '\0';
     }
 
     // Read file.
@@ -121,15 +138,22 @@ int main (int argc, char *argv[])
     char line[4001];
     while(fgets(line, 4001, file) != NULL && line_num < total_lines)
     {
-      for (i=0; i<4001; i++)
+      if ((char) line[0] == '\n')
       {
-        if ((char) line[i] != NULL && (char) line[i] != '\n' && (char) line[i] != '\0')
+        line_num--;
+      }
+      else
+      {
+        for (i=0; i<4001; i++)
         {
-          lines[(line_num*4001)+i] = (char) line[i];
-        }
-        else 
-        {
-          break;
+          if ((char) line[i] != NULL && (char) line[i] != '\n' && (char) line[i] != '\0')
+          {
+            lines[(line_num*4001)+i] = (char) line[i];
+          }
+          else 
+          {
+            break;
+          }
         }
       }
       line_num++;
@@ -150,6 +174,12 @@ int main (int argc, char *argv[])
       endPos = total_lines;
     }
 
+    char *local_results = malloc(sizeof(char)*num_of_elements_per_process*4001);
+    for(i= 0; i < num_of_elements_per_process*4001; i++)
+    {
+      local_results[i] = '\0';
+    }
+
     char *line1;
     char *line2;
     for (i=startPos; i<endPos; i++)
@@ -158,126 +188,46 @@ int main (int argc, char *argv[])
       line1 = malloc(sizeof(char) * 4001);
       for(j=0; j < 4001; j++)
       {
-        if (lines[(i*4001)+j] != '`')
+        if (lines[(i*4001)+j] != '\0')
         {
           line1[j] = lines[(i*4001)+j];
         }
         else
         {
           line1[j] = '\0';
+          break;
         }
       }
       for(j=0; j < 4001; j++)
       {
-        if (lines[((i+1)*4001)+j] != '`')
+        if (lines[((i+1)*4001)+j] != '\0')
         {
           line2[j] = lines[((i+1)*4001)+j];
         }
         else
         {
           line2[j] = '\0';
+          break;
         }
+      }
+      char *answer = lcs(line1, line2);
+      size_t length = strlen(answer);
+      for (j=0; j<length; j++)
+      {
+        local_results[(i*4001)+j] = answer[j];
       }
     }
 
-    char *local_results = malloc(sizeof(char)*num_of_elements_per_process*4001);
-    for(i= 0; i < num_of_elements_per_process*4001; i++)
-    {
-      local_results[i] = '`';
-    }
-
-
-
-
-
-
-
-    // printf("%c\n", lines[0]);
-    // for(i = 0; i < num_of_elements_per_process-1; i++)
-    // {
-    //   printf("HERE\n");
-    //   // char *line1, *line2;
-    //   char *line1 = malloc(sizeof(char) * 4001);
-    //   char *line2 = malloc(sizeof(char) * 4001);
-    //   for(j=0; j < 4001; j++)
-    //   {
-    //     if (local_lines[(i*4001)+j] != '`')
-    //     {
-    //       line1[j] = local_lines[(i*4001)+j];
-    //       // line1[j] = *(local_lines + i*sizeof(char) + j);
-    //     }
-    //     else
-    //     {
-    //       line1[j] = '\0';
-    //     }
-    //   }
-    //   for(j=0; j < 4001; j++)
-    //   {
-    //     if (local_lines[((i+1)*4001)+j] != '`')
-    //     {
-    //       line2[j] = local_lines[((i+1)*4001)+j];
-    //       // line2[j] = *(local_lines + (i+1)*sizeof(char) + j);
-    //     }
-    //     else
-    //     {
-    //       line2[j] = '\0';
-    //     }
-        // printf("%s\n%s\n", line1, line2);
-      // }
-    //   char *answer = lcs(line1, line2);
-    //   // printf("%s\n", answer);
-    //   // for (j=0; j<4001; j++)
-    //   // {
-    //   //   if (*(answer + (i+1)*sizeof(char) + j) != '\0')
-    //   //   {
-    //   //     line2[j] = *(local_lines + (i+1)*sizeof(char) + j);
-    //   //   }
-    //   //   else
-    //   //   {
-    //   //     line2[j] = '\0';
-    //   //   }
-    //   // }
-    // }
-    // printf("Rank: %d\n", rank);
-
-
-
-
-
-
-
-
-    // // for (i=0; i<num_of_elements_per_process; i++)
-    // // {
-    // //   local_results[i] = malloc( sizeof(char)*4001 );
-    // // }
-    // // for (j=0;j<num_of_elements_per_process-1;j++)
-    // // {
-    // //   char *A = lines[j];
-    // //   char *B = lines[j+1];
-    // //   char *answer = lcs(A, B);
-    // //   local_results[j] = answer;
-    // // }
-
-    // if (rank == 0)
-    // {
-    //   MPI_Gather(local_results, num_of_elements_per_process*4001, MPI_CHAR, results, num_of_elements_per_process*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
-    // }
-    // else
-    // {
-    //   MPI_Gather(local_results, num_of_elements_per_process*4001, MPI_CHAR, NULL, num_of_elements_per_process*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
-    // }
-    
-    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Reduce(local_results, results, total_lines*4001, MPI_CHAR, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (rank == 0)
     {
-      // PrintResults(results, total_lines);
+      PrintResults(results, total_lines);
       free(lines);
       free(results);
     }
 
-    // free(local_results);
+    free(local_results);
 
     MPI_Finalize();
     return 0; // success
