@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-// #include <omp.h>
+#include <omp.h>
 
 char *filename;
 int number_of_threads;
@@ -10,6 +10,7 @@ int number_of_lines;
 
 char* lcs(char* s1, char* s2)
 {
+  #pragma omp private(s1, s2, s1_l, s2_l, i, sl_i, s2_i,longest, set, v)
   int s1_l = strlen(s1), s2_l = strlen(s2);
 	int i, s1_i, s2_i, longest = 0;
 
@@ -92,7 +93,7 @@ void PrintResults(char** string_collection)
   int i;
   for (i=0; i < number_of_lines - 1; i++)
   {
-    printf("%s\n", string_collection[i]);
+    printf("%d-%d: %s\n", i, i+1, string_collection[i]);
   }
 }
 
@@ -125,10 +126,10 @@ int main (int argc, char *argv[])
     string_collection = (char **) malloc( number_of_lines * sizeof( char * ) );
 
     // OpenMP Parallelization
-    // omp_set_num_threads(number_of_threads);
+    omp_set_num_threads(number_of_threads);
 
-    // #pragma omp parallel
-    // {
+    #pragma omp parallel
+    {
       for (i = 0; i < number_of_lines - 1; i++)
       {
         s1 = stored_file[i];
@@ -136,7 +137,7 @@ int main (int argc, char *argv[])
         longest = lcs(s1, s2);
         string_collection[i] = longest;
       }
-    // }
+    }
     PrintResults(string_collection);
   }
 }
