@@ -3,10 +3,10 @@
 ##### These lines are for Slurm
 #SBATCH -t 10:00:00                #Maximum time required
 #SBATCH -o Output/2core/mpi_N2_1000000.%j              #Output file name
-#SBATCH --mem-per-cpu=8G
+#SBATCH --mem-per-cpu=4G
 #SBATCH --constraint=elves
 #SBATCH --nodes=2
-#SBATCH --cpus-per-task=2
+#SBATCH --tasks-per-node=2
 
 ### Job commands start here
 ### Display some diagnostic information
@@ -22,6 +22,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time srun mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/2core/mpi_N2_1000000.txt
+{ time mpirun -np 2 mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/2core/mpi_N2_1000000.txt
 
 echo '========================ALL DONE==========================='
