@@ -47,7 +47,7 @@ char* lcs(char* s1, char* s2)
 
 					// and clear the set
 					memset(set, ' ', strlen(set));
-				}	
+				}
 
 				// if new length equals to the longest length
 				if (v == longest)
@@ -58,11 +58,11 @@ char* lcs(char* s1, char* s2)
 				}
 			}
 		}
-
 	// free
 	for (i = 0; i < s1_l + 1; i++)
 		free(l[i]);
 	free(l);
+
 
   // printf("%s\n+\n%s\n=\n%s\n\n", s1, s2, set);
 	// return
@@ -87,16 +87,16 @@ char** readFile(char* file_name)
   return stored_file;
 }
 
-void PrintResults(char* string_collection)
+void PrintResults(char** string_collection)
 {
   int i;
-  for (i=0; i < number_of_lines; i++)
+  for (i=0; i < number_of_lines - 1; i++)
   {
-    printf("%d\n", i);
+    printf("%s\n", string_collection[i]);
   }
 }
 
-int main (int argc, char *argv[]) 
+int main (int argc, char *argv[])
 {
   if (argc < 4)
   {
@@ -113,28 +113,28 @@ int main (int argc, char *argv[])
     filename = argv[1];
     number_of_lines = atoi(argv[2]);
     number_of_threads = atoi(argv[3]);
-    
+
     // OpenMP Variables
     int i, j;
-    char* s1, s2, longest;
+    char* s1;
+    char* s2;
+    char* longest;
 
     // Init File and Collection
     stored_file = readFile(filename);
     string_collection = (char **) malloc( number_of_lines * sizeof( char * ) );
-    
+
     // OpenMP Parallelization
     // omp_set_num_threads(number_of_threads);
-    
+
     // #pragma omp parallel
     // {
       for (i = 0; i < number_of_lines - 1; i++)
       {
-        printf("1\n");
         s1 = stored_file[i];
         s2 = stored_file[i + 1];
         longest = lcs(s1, s2);
-        strcpy(string_collection[i], longest);
-        printf("2\n");
+        string_collection[i] = longest;
       }
     // }
     PrintResults(string_collection);
