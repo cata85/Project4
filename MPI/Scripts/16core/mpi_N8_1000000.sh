@@ -6,7 +6,7 @@
 #SBATCH --mem-per-cpu=1G
 #SBATCH --constraint=elves
 #SBATCH --nodes=8
-#SBATCH --tasks-per-node=16
+#SBATCH --tasks-per-node=2
 
 ### Job commands start here
 ### Display some diagnostic information
@@ -22,6 +22,6 @@ sinfo -s
 
 echo '=====================JOB STARTING=========================='
 
-{ time mpirun -np 16 mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/16core/mpi_N8_1000000.txt
+{ time mpirun -np 8 mpi /homes/dan/625/wiki_dump.txt 1000000; } 2> Times/16core/mpi_N8_1000000.txt
 
 echo '========================ALL DONE==========================='
