@@ -3,8 +3,6 @@
 #include <string.h>
 #include <mpi.h>
 
-  char** results;
-
 
 //this method is found https://gist.github.com/adrian-source/4111719 .... THIS CODE IS NOT MINE
 char* lcs(char* s1, char* s2)
@@ -91,33 +89,12 @@ char **ReadFile (char *filename, int total_lines)
 }
 
 // this method prints the results from the results 
-void PrintResults(int total_lines)
+void PrintResults(char **results, int total_lines)
 {
   int i;
   for (i=0; i<total_lines; i++)
   {
     printf("%d-%d: %s\n", i, i+1, results[i]); 
-  }
-}
-
-void *job_allocator(void *rank, int total_lines, int number_of_tasks, char **lines)
-{
-  int i, j;
-  int id = *((int *) rank);
-  int startPos = ((long) id) * (total_lines / number_of_tasks);
-  int endPos = startPos + (total_lines / number_of_tasks);
-
-  if (id == number_of_tasks-1)
-  {
-    endPos = total_lines-1; // Could be issue.
-  }
-
-  for (j=startPos;j<endPos-1;j++)
-  {
-    char *A = lines[j];
-    char *B = lines[j+1];
-    char *answer = lcs(A, B);
-    results[j] = answer;
   }
 }
 
@@ -135,13 +112,8 @@ int main (int argc, char *argv[])
     int total_lines = atoi(argv[2]);
     int number_of_tasks, rank;
     char **lines;
+    char **results;
     MPI_Status status;
-
-    results = (char **) malloc( total_lines * sizeof( char * ) );
-    for(i=0; i < total_lines; i++) 
-    {
-      results[i] = malloc( sizeof(char)*4001 );
-    }
 
     int ierr = MPI_Init(&argc, &argv);
 
@@ -157,16 +129,56 @@ int main (int argc, char *argv[])
 
     if (rank == 0)
     {
+      results = (char **) malloc( total_lines * sizeof( char * ) );
+      for(i=0; i < total_lines; i++) 
+      {
+        results[i] = malloc( sizeof(char)*4001 );
+      }
       lines = ReadFile(filename, total_lines);
     }
 
-    MPI_Bcast(lines, total_lines, MPI_CHAR, 0, MPI_COMM_WORLD);
-    job_allocator(rank, total_lines, number_of_tasks, lines);
+    int num_of_elements_per_process = total_lines / number_of_tasks;
+    char** sub_lines = (char **) malloc( num_of_elements_per_process * sizeof( char * ) );
+    for( i = 0; i < num_of_elements_per_process + 1; i++ ) 
+    {
+      sub_lines[i] = malloc( sizeof(char)*4001 );
+    }
+
+    MPI_Scatter(lines, num_of_elements_per_process, MPI_CHAR, sub_lines, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
+    char **local_results = (char **) malloc( num_of_elements_per_process * sizeof( char *) );
+    for (i=0; i<num_of_elements_per_process; i++)
+    {
+      local_results[i] = malloc( sizeof(char)*4001 );
+    }
+    for (j=0;j<num_of_elements_per_process-1;j++)
+    {
+      char *A = lines[j];
+      char *B = lines[j+1];
+      char *answer = lcs(A, B);
+      local_results[j] = answer;
+    }
+
+    if (rank == 0)
+    {
+      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, results, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
+    }
+    else
+    {
+      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, NULL, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
+    }
+    
     MPI_Barrier(MPI_COMM_WORLD);
-    PrintResults(total_lines);
+
+    if (rank == 0)
+    {
+      PrintResults(results, total_lines);
+    }
 
     free(lines);
     free(results);
+    free(local_results);
+
+    MPI_Finalize();
     return 0; // success
   }
 } // end main
