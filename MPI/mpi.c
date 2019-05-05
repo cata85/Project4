@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-
-
-#define NUM_THREADS 1
-
-//#pragma omp private(results)
+#include <mpi.h>
 
 
 //this method is found https://gist.github.com/adrian-source/4111719 .... THIS CODE IS NOT MINE
@@ -115,33 +110,75 @@ int main (int argc, char *argv[])
   {
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
-    char** results = (char **) malloc( total_lines * sizeof( char * ) );
-    for(i=0; i < total_lines; i++) 
+    int number_of_tasks, rank;
+    char **lines;
+    char **results;
+    MPI_Status status;
+
+    int ierr = MPI_Init(&argc, &argv);
+
+    if (ierr != MPI_SUCCESS)
     {
-      results[i] = malloc( sizeof(char)*4001 );
+      printf("Error: MPI could not start.\n");
+      MPI_Abort(MPI_COMM_WORLD, ierr);
     }
 
-    char **lines = ReadFile(filename, total_lines);
+    MPI_Comm_size(MPI_COMM_WORLD, &number_of_tasks);
 
-    if (lines != NULL) {
-      for (j=0;j<total_lines-1;j++)
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    if (rank == 0)
+    {
+      results = (char **) malloc( total_lines * sizeof( char * ) );
+      for(i=0; i < total_lines; i++) 
       {
-        char *A = lines[j];
-        char *B = lines[j+1];
-        char *answer = lcs(A, B);
-        results[j] = answer;
+        results[i] = malloc( sizeof(char)*4001 );
       }
-      free(lines);
-      PrintResults(results, total_lines);
-      free(results);
+      lines = ReadFile(filename, total_lines);
+    }
+
+    int num_of_elements_per_process = total_lines / number_of_tasks;
+    char** sub_lines = (char **) malloc( num_of_elements_per_process * sizeof( char * ) );
+    for( i = 0; i < num_of_elements_per_process + 1; i++ ) 
+    {
+      sub_lines[i] = malloc( sizeof(char)*4001 );
+    }
+
+    MPI_Scatter(lines, num_of_elements_per_process, MPI_CHAR, sub_lines, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
+    char **local_results = (char **) malloc( num_of_elements_per_process * sizeof( char *) );
+    for (i=0; i<num_of_elements_per_process; i++)
+    {
+      local_results[i] = malloc( sizeof(char)*4001 );
+    }
+    for (j=0;j<num_of_elements_per_process-1;j++)
+    {
+      char *A = lines[j];
+      char *B = lines[j+1];
+      char *answer = lcs(A, B);
+      local_results[j] = answer;
+    }
+
+    if (rank == 0)
+    {
+      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, results, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
     }
     else
     {
-      free(lines);
-      free(results);
-      printf("File failed to load");
-      return 1; //failed
+      MPI_Gather(local_results, num_of_elements_per_process, MPI_CHAR, NULL, num_of_elements_per_process, MPI_CHAR, 0, MPI_COMM_WORLD);
     }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    if (rank == 0)
+    {
+      PrintResults(results, total_lines);
+    }
+
+    free(lines);
+    free(results);
+    free(local_results);
+
+    MPI_Finalize();
     return 0; // success
   }
 } // end main
