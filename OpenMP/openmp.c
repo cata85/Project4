@@ -2,36 +2,98 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <omp.h>
+// #include <omp.h>
 
 char *filename;
 int number_of_threads;
 int number_of_lines;
-char** longest_common;
-char** stored_file;
-omp_lock_t o_lock;
 
-void lcs()
+char* lcs(char* s1, char* s2)
 {
-  
+  int s1_l = strlen(s1), s2_l = strlen(s2);
+	int i, s1_i, s2_i, longest = 0;
+
+	char* set = (char*)malloc(sizeof(char) * ((s1_l < s2_l)?s1_l:s2_l));
+	memset(set, ' ', strlen(set));
+
+	// initialize 2d array
+	int** l = (int**)malloc((s1_l + 1) * sizeof(int*));
+	for (i = 0; i < s1_l + 1; i++)
+		l[i] = (int*)malloc((s2_l + 1) * sizeof(int));
+
+	// initialize all array fields to 0
+	for (s1_i = 0; s1_i < s1_l; s1_i++)
+		for (s2_i = 0; s2_i < s2_l; s2_i++)
+			l[s1_i][s2_i] = 0;
+
+	// loop through all letters
+	for (s1_i = 0; s1_i < s1_l; s1_i++)
+		for (s2_i = 0; s2_i < s2_l; s2_i++)
+		{
+			// if characters match
+			if (s1[s1_i] == s2[s2_i])
+			{
+				// calculate the incremented length for current sequence
+				int v = l[s1_i][s2_i] + 1;
+
+				// save the incremented length in south-east cell
+				l[s1_i+1][s2_i+1] = v;
+
+				// if new length is longest thus far
+				if (v > longest)
+				{
+					// set that to be our new longest length
+					longest = v;
+
+					// and clear the set
+					memset(set, ' ', strlen(set));
+				}	
+
+				// if new length equals to the longest length
+				if (v == longest)
+				{
+					// copy the char set to the return set
+					for (i = 0; i < longest; i++)
+						set[i] = s1[s1_i-longest+i+1];
+				}
+			}
+		}
+
+	// free
+	for (i = 0; i < s1_l + 1; i++)
+		free(l[i]);
+	free(l);
+
+  // printf("%s\n+\n%s\n=\n%s\n\n", s1, s2, set);
+	// return
+	return set;
 }
 
-void readFile(char* file_name)
+char** readFile(char* file_name)
 {
-  FILE *fd;
-  int i = 0;
-  int nlines, err;
-  stored_file = (char **) malloc( number_of_lines * sizeof( char * ) );
-  for( i = 0; i < number_of_lines + 1; i++ ) 
+  int i, nlines, err;
+  char** stored_file = malloc(sizeof(char*) * number_of_lines);
+  for (i = 0; i < number_of_lines; i++)
   {
-    stored_file[i] = malloc( sizeof(char)*4001 );
+    stored_file[i] = malloc(sizeof(char) * 4001);
   }
+  FILE *fd;
   fd = fopen(file_name, "r");
 	nlines = -1;
 	do {
     err = fscanf(fd, "%[^\n]\n", stored_file[++nlines]);
   } while (err != EOF && nlines < number_of_lines);
-	fclose( fd );
+  fclose( fd );
+  return stored_file;
+}
+
+void PrintResults(char* string_collection)
+{
+  int i;
+  for (i=0; i < number_of_lines; i++)
+  {
+    printf("%d\n", i);
+  }
 }
 
 int main (int argc, char *argv[]) 
@@ -43,45 +105,38 @@ int main (int argc, char *argv[])
   }
   else
   {
-    printf("you are not missing arguments\n");
+    // File and Collection
+    char** stored_file;
+    char** string_collection;
+
     // Collect Args
     filename = argv[1];
     number_of_lines = atoi(argv[2]);
     number_of_threads = atoi(argv[3]);
     
     // OpenMP Variables
-    omp_init_lock(&o_lock);
-    int start_point;
-    int end_point;
-    int thread_num;
-    char** temp_longest_common;
-    int i;
-    
-    // Read File
-    readFile(filename);
+    int i, j;
+    char* s1, s2, longest;
 
-    printf("File read.\n");
-        
+    // Init File and Collection
+    stored_file = readFile(filename);
+    string_collection = (char **) malloc( number_of_lines * sizeof( char * ) );
+    
     // OpenMP Parallelization
-    omp_set_num_threads(number_of_threads);
-    #pragma omp parallel private(start_point, end_point, thread_num, temp_longest_common, i)
-    {
-      thread_num = omp_get_thread_num();
-      start_point = thread_num * number_of_lines / number_of_threads;
-      end_point = start_point + number_of_lines / number_of_threads;
-      temp_longest_common = longest_common + start_point;
-      
-      if (thread_num == number_of_threads - 1)
+    // omp_set_num_threads(number_of_threads);
+    
+    // #pragma omp parallel
+    // {
+      for (i = 0; i < number_of_lines - 1; i++)
       {
-        end_point = number_of_lines - 1;
+        printf("1\n");
+        s1 = stored_file[i];
+        s2 = stored_file[i + 1];
+        longest = lcs(s1, s2);
+        strcpy(string_collection[i], longest);
+        printf("2\n");
       }
-      
-      for (i = start_point; i < end_point; i++)
-      {
-        lcs(stored_file[i], stored_file[i + 1], longest_common);
-        temp_longest_common++;
-      }
-    }
-    printf("%s\n", longest_common[0]);
+    // }
+    PrintResults(string_collection);
   }
 }
