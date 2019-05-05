@@ -87,9 +87,6 @@ void PrintResults(char *results, int total_lines)
     }
     printf("%d-%d: %s\n", i, i+1, answer); 
   }
-
-
-
 }
 
 int main (int argc, char *argv[]) 
@@ -122,14 +119,18 @@ int main (int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     lines = malloc(sizeof(char)*total_lines*4001);
-
-    results = malloc(sizeof(char)*total_lines*4001);
-
-    // Initialize arrays.
     for(i = 0; i < total_lines*4001; i++)
     {
       lines[i] = '\0';
-      results[i] = '\0';
+    }
+
+    if (rank == 0)
+    {
+      results = malloc(sizeof(char)*total_lines*4001);
+      for (i=0; i<total_lines*4001; i++)
+      {
+        results[i] = '\0';
+      }
     }
 
     // Read file.
@@ -160,10 +161,6 @@ int main (int argc, char *argv[])
     }
     fclose(file);
 
-
-
-
-
     // Parallelize.
     MPI_Bcast(lines, total_lines*4001, MPI_CHAR, 0, MPI_COMM_WORLD);
     int num_of_elements_per_process = total_lines / number_of_tasks;
@@ -184,8 +181,8 @@ int main (int argc, char *argv[])
     char *line2;
     for (i=startPos; i<endPos; i++)
     {
-      line2 = malloc(sizeof(char) * 4001);
       line1 = malloc(sizeof(char) * 4001);
+      line2 = malloc(sizeof(char) * 4001);
       for(j=0; j < 4001; j++)
       {
         if (lines[(i*4001)+j] != '\0')
@@ -217,13 +214,13 @@ int main (int argc, char *argv[])
         local_results[(i*4001)+j] = answer[j];
       }
     }
+    free(lines);
 
     MPI_Reduce(local_results, results, total_lines*4001, MPI_CHAR, MPI_SUM, 0, MPI_COMM_WORLD);
 
     if (rank == 0)
     {
       PrintResults(results, total_lines);
-      free(lines);
       free(results);
     }
 
