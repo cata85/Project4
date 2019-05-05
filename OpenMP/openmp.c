@@ -7,6 +7,7 @@
 char *filename;
 int number_of_threads;
 int number_of_lines;
+omp_lock_t collection_lock;
 
 char* lcs(char* s1, char* s2)
 {
@@ -64,9 +65,6 @@ char* lcs(char* s1, char* s2)
 		free(l[i]);
 	free(l);
 
-
-  // printf("%s\n+\n%s\n=\n%s\n\n", s1, s2, set);
-	// return
 	return set;
 }
 
@@ -90,11 +88,14 @@ char** readFile(char* file_name)
 
 void PrintResults(char** string_collection)
 {
+  FILE *f = fopen("results.txt", "w");
   int i;
   for (i=0; i < number_of_lines - 1; i++)
   {
-    printf("%d-%d: %s\n", i, i+1, string_collection[i]);
+    fprintf(f, "%d-%d: %s\n", i, i+1, string_collection[i]);
   }
+  printf("Results written.\n");
+  fclose(f);
 }
 
 int main (int argc, char *argv[])
@@ -110,32 +111,35 @@ int main (int argc, char *argv[])
     char** stored_file;
     char** string_collection;
 
-    // Collect Args
-    filename = argv[1];
-    number_of_lines = atoi(argv[2]);
-    number_of_threads = atoi(argv[3]);
-
     // OpenMP Variables
     int i, j;
     char* s1;
     char* s2;
     char* longest;
 
-    // Init File and Collection
-    stored_file = readFile(filename);
-    string_collection = (char **) malloc( number_of_lines * sizeof( char * ) );
+    // Collect Args
+    filename = argv[1];
+    number_of_lines = atoi(argv[2]);
+    number_of_threads = atoi(argv[3]);
 
     // OpenMP Parallelization
     omp_set_num_threads(number_of_threads);
 
-    #pragma omp parallel
+    // Init File, Collection, and Lock
+    stored_file = readFile(filename);
+    string_collection = (char **) malloc( number_of_lines * sizeof( char * ) );
+    omp_init_lock(&collection_lock);
+
+    #pragma omp parallel private(s1, s2, longest, i)
     {
       for (i = 0; i < number_of_lines - 1; i++)
       {
         s1 = stored_file[i];
         s2 = stored_file[i + 1];
         longest = lcs(s1, s2);
+        omp_set_lock(&collection_lock);
         string_collection[i] = longest;
+        omp_unset_lock(&collection_lock);
       }
     }
     PrintResults(string_collection);

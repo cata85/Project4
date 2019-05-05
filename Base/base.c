@@ -49,7 +49,7 @@ char* lcs(char* s1, char* s2)
 
 					// and clear the set
 					memset(set, ' ', strlen(set));
-				}	
+				}
 
 				// if new length equals to the longest length
 				if (v == longest)
@@ -78,7 +78,7 @@ char **ReadFile (char *filename, int total_lines)
   int nchars = 0;
   int len, nlines, err;
   char** lines = (char **) malloc( total_lines * sizeof( char * ) );
-  for( i = 0; i < total_lines + 1; i++ ) 
+  for( i = 0; i < total_lines + 1; i++ )
   {
     lines[i] = malloc( sizeof(char)*4001 );
   }
@@ -89,21 +89,21 @@ char **ReadFile (char *filename, int total_lines)
 	  if( lines[nlines] != NULL ) nchars += (double) strlen( lines[nlines] );
 	} while( err != EOF && nlines < total_lines);
 	fclose( fd );
-  
+
   return lines;
 }
 
-// this method prints the results from the results 
+// this method prints the results from the results
 void PrintResults(char **results, int total_lines)
 {
   int i;
   for (i=0; i<total_lines; i++)
   {
-    printf("%d-%d: %s\n", i, i+1, results[i]); 
+    printf("%d-%d: %s\n", i, i+1, results[i]);
   }
 }
 
-int main (int argc, char *argv[]) 
+int main (int argc, char *argv[])
 {
   int i, j;
   if (argc < 3)
@@ -116,7 +116,7 @@ int main (int argc, char *argv[])
     char *filename = argv[1];
     int total_lines = atoi(argv[2]);
     char** results = (char **) malloc( total_lines * sizeof( char * ) );
-    for(i=0; i < total_lines; i++) 
+    for(i=0; i < total_lines; i++)
     {
       results[i] = malloc( sizeof(char)*4001 );
     }

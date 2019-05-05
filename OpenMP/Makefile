@@ -4,7 +4,7 @@ openmp:
 run:
 	-rm -f openmp
 	gcc -fopenmp -o openmp openmp.c
-	./openmp test.txt 10 10
+	./openmp ../Base/shakespeare.txt 15000 1
 
 clean:
 	-rm -f openmp
